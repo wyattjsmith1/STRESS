@@ -8,7 +8,7 @@ You will need:
 
 To start:
  1. Modify the 'apache.properties' file. Add your Apache credentials and MySQL configuration.
- 2. Import the sql data from the sql directory into your database. (Optionally, you can generate a new snapshot, but that takes tremendous time and resources. See below)
+ 2. Import the sql data from the `INSTALL/sql` directory into your database. (Optionally, you can generate a new snapshot, but that takes tremendous time and resources. See below)
  3. Run:
 ```sh
 $ java -jar apache_project_data.jar [flags]
