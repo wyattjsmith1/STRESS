@@ -1,0 +1,36 @@
+<html>
+<head>
+    <meta content="text/html;charset=utf-8" http-equiv="Content-Type"/>
+    <meta content="utf-8" http-equiv="encoding"/>
+    <link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap-theme.min.css"/>
+    <link rel="stylesheet" href="/main.css"/>
+    <script src="/webjars/jquery/jquery.min.js"></script>
+    <script src="/webjars/bootstrap/js/bootstrap.min.js"></script>
+    <script src="/webjars/momentjs/moment.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/seedrandom/2.4.0/seedrandom.min.js"></script>
+    <script src="/main.js"></script>
+</head>
+<body>
+    <h1>Apache Project Data</h1>
+    <button class="btn" onclick="back();"><span class="glyphicon glyphicon-menu-left" aria-hidden="true"></span></button>
+    <div id="content" class="text-center"></div>
+
+    <div class="modal fade" tabindex="-1" id="params" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <input id="seed" placeholder="Seed" type="text"/>
+                    <input id="projectCount" placeholder="Number Projects" type="number"/>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="run">Get Projects</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</body>
+</html>
