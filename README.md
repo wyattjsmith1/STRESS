@@ -5,9 +5,10 @@ You will need:
  1. Java 8
  2. MySQL server
  3. An account with Apache (https://issues.apache.org/jira/login.jsp?os_destination=%2Fsecure%2FDashboard.jspa)
+ 4. A reCaptcha account with Google. 
 
 To start:
- 1. Modify the 'apache.properties' file. Add your Apache credentials and MySQL configuration.
+ 1. Modify the 'apache.properties' file. Add your Apache credentials, MySQL configuration, and reCaptcha keys.
  2. Import the sql data from the `INSTALL/sql` directory into your database. (Optionally, you can generate a new snapshot, but that takes tremendous time and resources. See below)
  3. Run:
 ```sh
@@ -28,3 +29,5 @@ password=<MySQL pass>
 Notes:
  1. To build source, run `mvn package`. That will create a jar in `/target`
  2. When importing SQL, the table names must be the same.
+ 3. Due to a small but that will hopefully be fixed soon, when filtering with a boolean (checkbox), the checkbox must always be enabled. For example, if you want to look for projects that do not use maven, do: "usesMaven? != \[x\]"
+ 4. Currently, filtering by language stats is not supported. You may view the statistics of the languages, but you can not filter by them.

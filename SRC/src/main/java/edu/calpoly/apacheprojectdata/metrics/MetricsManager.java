@@ -167,11 +167,9 @@ public class MetricsManager {
 
     public List search(List<Filter> filters, Integer snapshot) {
         StringBuilder query = new StringBuilder();
-        query.append(String.format("select p from %s p where p.snapshot.id=%d and p.bugDatabase.averageDevelopersPerCompleteTicket != -1", ProjectMetrics.class.getName(), snapshot));
-        //Set<String> fields = new HashSet<>();
+        query.append(String.format("select p from %s p where p.snapshot.id=%d and p.bugDatabase.averageDevelopersPerCompleteTicket != -1 ", ProjectMetrics.class.getName(), snapshot));
         for (Filter filter : filters) {
             query.append(String.format(" and %s %s %s", filter.getField(), filter.getComparator(), filter.getValue()));
-            //fields.add(filter.getField());
         }
         return session.createQuery(query.toString()).getResultList();
     }

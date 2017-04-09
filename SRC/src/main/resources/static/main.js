@@ -11,6 +11,7 @@ var selectedProjects = null;
 var selectionType = null;
 var seed = "";
 var projectCount = 5;
+var captcha = '<div id="captcha"></div>';
 
 
 window.onload = function() {
@@ -45,9 +46,11 @@ function loadImport() {
     clear();
     back = loadStartOptions
 
+    var form = $('<form></form>');
     var files = $('<input type="file" id="files" name="file"/>');
-    function handleFileSelect(evt) {
-        var files = evt.target.files; // FileList object
+    function handleFileSelect(e) {
+        e.preventDefault();
+        var files = e.target.files;
         var reader = new FileReader();
         reader.onload = (function(theFile) {
             return function(e) {
@@ -60,46 +63,42 @@ function loadImport() {
                     seed = data.type.seed;
                     projectCount = data.type.number;
                 }
-                selectedProjects = data.projects;
+                projects = data.projects;
+                selectedProjects = [];
+                var selectedSet = new Set(data.selectedIds);
+                projects.forEach(function(item) {
+                    if (selectedSet.has(item.id)) {
+                        selectedProjects.push(item);
+                    }
+                });
                 $.ajax({
-                    url: "/search/" + snapshotId,
-                    type: "POST",
-                    data: JSON.stringify(filters),
-                    contentType:"application/json; charset=utf-8",
-                    dataType:"json",
-                    processData: false,
-                    success: function(search, status, j) {
-                        projects = search;
-                        $.ajax({
-                            url: "/fields",
-                            dataType: "json",
-                            error: function(j, status, error) {
-                                alert("Unable to load fields: " + status + ": " + error);
-                            },
-                            success: function(data, status, j) {
-                                for (var group in data) {
-                                    if (data.hasOwnProperty(group)) {
-                                        groupFields.forEach(function(item) {
-                                            fields[item.fieldName] = item;
-                                        });
-                                    }
-                                }
-                                loadSelection();
-                            }
-                        });
-                    },
+                    url: "/fields",
+                    dataType: "json",
                     error: function(j, status, error) {
-                        alert("Unable to search: " + status + ': ' + error);
+                        alert("Unable to load fields: " + status + ": " + error);
+                    },
+                    success: function(data, status, j) {
+                        fields = {};
+                        for (var group in data) {
+                            if (data.hasOwnProperty(group)) {
+                                var groupFields = data[group];
+                                groupFields.forEach(function(item) {
+                                    fields[item.fieldName] = item;
+                                });
+                            }
+                        }
+                        loadSelection();
                     }
                 });
             };
         })(files);
 
-        // Read in the image file as a data URL.
-        reader.readAsText(files[0]);
+        reader.readAsText(files.files[0]);
     }
-    $("#content").append(files);
-    document.getElementById('files').addEventListener('change', handleFileSelect, false);
+    form.append(files);
+    form.append($('<input class="btn btn-primary" type="submit">Submit</input>'));
+    $("#content").append(form);
+    form.submit(handleFileSelect);
 
 }
 
@@ -177,7 +176,6 @@ function loadFields() {
                 if (data.hasOwnProperty(group)) {
                     form.append($('<div class="row" align="center"><h4>' + group + '</h4></div>'));
                     var groupFields = data[group];
-                    console.log(groupFields);
                     var row = $('<div class="row"></div>');
                     groupFields.forEach(function(item) {
                         var checked = laxContains(usedFields, item) ? "checked" : "";
@@ -222,6 +220,7 @@ function loadFilters() {
     clear();
 
     var form = $("<form></form>");
+    //form.append(captcha);
     $("#content").append(form);
     if (filters) {
         filters.forEach(function(item) {
@@ -237,42 +236,55 @@ function loadFilters() {
             createAndFilter(form, null);
         }
     }));
+
     var spinner = $('<br/><button class="btn btn-lg"><span class="glyphicon glyphicon-refresh spinning"></span> Loading...</button>');
     spinner.css('visibility', 'hidden');
-    $("#content").append($("<button/>", {
-        class: "btn btn-primary",
-        text: "Done",
-        click: function() {
-            spinner.css('visibility', 'visible');
-            var arr = $('form :input').serializeArray();
-            filters = [];
-            console.log(arr);
-            for (i = 0; i < arr.length; i += 3) {
-                var next = {};
-                for (j = 0; j < 3; j ++) {
-                    next[arr[i + j].name] = arr[i + j].value;
-                }
-                filters.push(next);
+    form.append($(captcha));
+    grecaptcha.render("captcha", {
+        sitekey: captchaPublic,
+    });
+    console.log("public", captchaPublic);
+    form.append($("<button class='btn btn-primary'>Done</div>"));
+    form.submit(function(e) {
+        e.preventDefault();
+        spinner.css('visibility', 'visible');
+        var arr = $('form :input').serializeArray();
+        filters = [];
+        console.log(arr);
+        for (i = 0; i < arr.length - 1; i += 3) {
+            var next = {};
+            for (j = 0; j < 3; j ++) {
+                next[arr[i + j].name] = arr[i + j].value;
             }
-            $.ajax({
-                url: "/search/" + snapshotId,
-                type: "POST",
-                data: JSON.stringify(filters),
-                contentType:"application/json; charset=utf-8",
-                dataType:"json",
-                processData: false,
-                success: function(data, status, j) {
+            filters.push(next);
+        }
+        var send = {"filters": filters};
+        var captchaResult = arr[arr.length - 1];
+        send[captchaResult.name] = captchaResult.value;
+        $.ajax({
+            url: "/search/" + snapshotId,
+            type: "POST",
+            data: JSON.stringify(send),
+            contentType:"application/json; charset=utf-8",
+            dataType:"json",
+            processData: false,
+            success: function(data, status, j) {
+                grecaptcha.reset();
+                spinner.css('visibility', 'hidden');
+                if (data.length > 0 && $.isArray(data[0])) {
+                    alert("Failed Captcha.");
+                } else {
                     projects = data;
                     loadProjectView();
-                    spinner.css('visibility', 'hidden');
-                },
-                error: function(j, status, error) {
-                    alert("Unable to search: " + status + ': ' + error);
-                    spinner.css('visibility', 'hidden');
                 }
-            });
-        }
-    }));
+            },
+            error: function(j, status, error) {
+                grecaptcha.reset();
+                alert("Unable to search: " + status + ': ' + error);
+                spinner.css('visibility', 'hidden');
+            }
+        });
+    });
     $("#content").append(spinner);
 }
 
@@ -283,7 +295,6 @@ function createAndFilter(root, obj) {
     if (obj != null) {
         value.val(obj.value);
     }
-    console.log(usedFields);
     usedFields.forEach(function(item) {
         var selected = obj != null && obj.field == item.fieldName ? "selected" : "";
         field.append($('<option value="' + item.fieldName + '" ' + selected + ' >' + item.displayName  + '</option>'));
@@ -334,6 +345,7 @@ function loadProjectView() {
     clear();
     back = loadFilters;
     var form = $('<form></form>');
+    form.append(captcha);
     var table = $('<table class="table table-bordered table-hover" style="width:100%"></table>');
     var header = $('<thead></thead>');
     var row = $('<tr></tr>');
@@ -381,18 +393,6 @@ function loadProjectView() {
             loadSelection();
         }
     }));
-    /*$("#content").append($("<input/>", {
-            placeholder: "Seed",
-            id: "seed",
-            type: "text",
-            value: seed
-        }));
-    $("#content").append($("<input/>", {
-            placeholder: "Number Projects",
-            id: "num_projects",
-            type: "number",
-            value: projectCount
-        }));*/
     $("#content").append($("<button/>", {
         class: "btn btn-primary",
         text: "Random Seeded Selection",
@@ -406,12 +406,6 @@ function loadProjectView() {
             });
         }
     }));
-    /*$("#content").append($("<input/>", {
-            placeholder: "Number Projects",
-            id: "num_projects_systematic",
-            type: "number",
-            value: projectCount
-        }));*/
     $("#content").append($("<button/>", {
         class: "btn btn-primary",
         text: "Systematic Sample",
@@ -488,12 +482,13 @@ function loadSelection() {
     selectedProjects.forEach(function(project) {
         list.append('<li class="list-group-item">' + project.projectName + '</li>')
     });
+    var selectedIds = selectedProjects.map(function(val) {return val.id});
 
     $("#content").append(list);
     $("#content").append($('<a/>', {
         class: "btn btn-primary",
         text: "Export Rationale",
         download: "data.json",
-        href: "data:application/json," + encodeURIComponent(JSON.stringify({"type": selectionType, "filters": filters, "projects": selectedProjects, "usedFields": usedFields}))
+        href: "data:application/json," + encodeURIComponent(JSON.stringify({"type": selectionType, "filters": filters, "projects": projects, "selectedIds": selectedIds, "usedFields": usedFields}))
     }));
 }

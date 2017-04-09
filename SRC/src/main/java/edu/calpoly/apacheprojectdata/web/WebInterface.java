@@ -1,7 +1,12 @@
 package edu.calpoly.apacheprojectdata.web;
 
-import org.springframework.boot.SpringApplication;
+import edu.calpoly.apacheprojectdata.Settings;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.builder.SpringApplicationBuilder;
+
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.Properties;
 
 
 /**
@@ -10,7 +15,12 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class WebInterface {
 
-    public void run() {
-        SpringApplication.run(WebInterface.class);
+    public void run() throws IOException {
+        Properties properties = new Properties();
+        properties.load(new FileReader(Settings.getApacheConfig()));
+        new SpringApplicationBuilder()
+                .properties(properties)
+                .sources(WebInterface.class)
+                .run();
     }
 }

@@ -1,5 +1,6 @@
-<html>
+<html xmlns:th="http://www.springframework.org/schema/mvc">
 <head>
+    <title>STRESS</title>
     <meta content="text/html;charset=utf-8" http-equiv="Content-Type"/>
     <meta content="utf-8" http-equiv="encoding"/>
     <link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.min.css"/>
@@ -9,10 +10,14 @@
     <script src="/webjars/bootstrap/js/bootstrap.min.js"></script>
     <script src="/webjars/momentjs/moment.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/seedrandom/2.4.0/seedrandom.min.js"></script>
+    <script src="https://www.google.com/recaptcha/api.js?render=explicit" async="async" defer="defer"></script>
+    <script th:inline="javascript">
+        var captchaPublic = /*[[${captchaPub}]]*/;
+    </script>
     <script src="/main.js"></script>
 </head>
 <body>
-    <h1>Apache Project Data</h1>
+    <h1>STRESS</h1>
     <button class="btn" onclick="back();"><span class="glyphicon glyphicon-menu-left" aria-hidden="true"></span></button>
     <div id="content" class="text-center"></div>
 

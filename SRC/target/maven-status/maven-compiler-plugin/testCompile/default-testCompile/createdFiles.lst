@@ -1,0 +1,9 @@
+edu/calpoly/apacheprojectdata/data/repository/RepositoryTest.class
+edu/calpoly/apacheprojectdata/ApacheProjectDataTest.class
+edu/calpoly/apacheprojectdata/data/ProjectTest.class
+edu/calpoly/apacheprojectdata/metrics/ProjectMetricsTest.class
+edu/calpoly/apacheprojectdata/data/bugdatabase/BugDatabaseTest.class
+edu/calpoly/apacheprojectdata/metrics/BugDatabaseMetricsTest.class
+edu/calpoly/apacheprojectdata/metrics/VcsMetricsTest.class
+edu/calpoly/apacheprojectdata/util/CollectionUtilTest.class
+edu/calpoly/apacheprojectdata/util/StringUtilTest.class

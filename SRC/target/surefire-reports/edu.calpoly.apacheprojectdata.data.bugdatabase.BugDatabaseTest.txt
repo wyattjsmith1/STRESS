@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: edu.calpoly.apacheprojectdata.data.bugdatabase.BugDatabaseTest
+-------------------------------------------------------------------------------
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.749 sec - in edu.calpoly.apacheprojectdata.data.bugdatabase.BugDatabaseTest
